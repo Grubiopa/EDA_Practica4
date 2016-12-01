@@ -323,7 +323,7 @@ public class LinkedTree<E> implements Tree<E> {
         }
         return dest;
     }
-    public boolean isDescendiente(Position<E> dest,Position<E> orig){
+    private boolean isDescendiente(Position<E> dest,Position<E> orig){
         boolean descendiente= false;
         TreeNode<E> aux=(TreeNode<E>)dest;
         
