@@ -15,7 +15,7 @@ public class TreeDirectoryTest {
 	private TreeDirectory treeDir;
 	
 	public void setDir() {
-		treeDir = new TreeDirectory("./direjemplo");
+		treeDir = new TreeDirectory("C:/Users/gabri/Documents");
 	}
 
 	@Test
@@ -40,11 +40,11 @@ public class TreeDirectoryTest {
 		 * Practica 4 - Mapas.pdf -> 416 KB
 		 * netflix.txt -> 3 KB
 		 */
-		setDir();
-		int kbytes = treeDir.getSize("./direjemplo/netflix");
-		assertEquals(419, kbytes);
-		kbytes = treeDir.getSize("./direjemplo");
-		assertEquals(1119, kbytes);
+		//setDir();
+		int kbytes = (int)treeDir.getSize("C:/Users/gabri/Documents");
+		assertEquals(13, kbytes);
+		//kbytes = (int)treeDir.getSize("./direjemplo");
+		//assertEquals(1119, kbytes);
 	}
 	
 	@Test

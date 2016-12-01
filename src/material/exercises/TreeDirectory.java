@@ -14,38 +14,44 @@ import material.tree.iterators.TreeIterator;
 
 public class TreeDirectory {
 
-	private Tree<String> tree;
+	private LinkedTree<String> tree;
 	
-	private class NodeStack{
-		Position<String> element;
-		int level;
-		
-		public NodeStack(Position<String> pos, int le){
-			this.element= pos;
-			this.level=le;
+	public TreeDirectory(String s){
+		s.replace('\\','/');
+		tree = new LinkedTree<String>();
+		tree.addRoot(s);
+		getChild(s);
+	}
+	
+	private void getChild(String s){
+		File archivo = new File (s);
+		Position<String> pos = findString(s);
+		for (String elem : archivo.list()){
+			String completo = s +"/"+elem;
+			File f = new File(completo);
+			tree.add(completo, pos);
+			if (f.isDirectory())
+				getChild(completo);		
 		}
 	}
-	
-	public TreeDirectory(String path) {
-		tree = new LinkedTree<String>();
-		tree.addRoot(path);
-		
-	}
-	
-	
 	public String getTreeDirectory() {
 		//Se me ocurre utilizar una pila para ir almacenando pero no consigo saber exactamente por el nivel x el que voy
 		String solution=((tree.root()).getElement())+"\n";
-		int level=0;
-		Iterable<? extends Position<String>> children = this.tree.children(tree.root());
-		for (Position<String> child : children){
-			for(int i=0;i<level;i++){
-				solution+="\t";
-			}
-			solution+=child.getElement()+"\n";
-		}
-		
+		solution= recursiveDirectory(1,tree.root(),tree.root().getElement()+"\n");
 		return solution;
+	}
+	
+	private String recursiveDirectory(int cont, Position<String> p, String solucion){
+		Iterable<? extends Position<String>> children = this.tree.children(p);
+		for (Position<String> child : children){
+			for(int i=0;i<cont;i++){
+				solucion+="\t";
+			}
+			solucion+=child.getElement()+"\n";
+ 			solucion=recursiveDirectory(cont + 1, child, solucion);
+ 			//recursiveDirectory(cont + 1, child, solucion);
+		}
+		return solucion;
 	}
 	
 	public double getSize(String s) {
