@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
+import java.util.Stack;
 
 import material.tree.Position;
 import material.tree.binarytree.LinkedBinaryTree.BTNode;
@@ -14,20 +16,31 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	
 	protected class BTNode<T> implements Position<T> {
 	    private T element;
-	    private BTNode<T> left, right, parent;
+	    //private BTNode<T> parent;
 	    private BTNode<T>[] myTree;
+	    private int posicion,parent;
 
 	    /** Main constructor */
-	    public BTNode(T element, BTNode<T> parent, BTNode<T> left,
-	            BTNode<T> right, BTNode<T>[] myTree) {
+	    public BTNode(T element, int parent, BTNode<T>[] myTree,int pos) {
 	        setElement(element);
 	        setParent(parent);
-	        setLeft(left);
-	        setRight(right);
 	        setMyTree(myTree);
+	        setPosicion(pos);
 	    }
 	    
-	    public BTNode<T>[] getMyTree() {
+	    public void setParent(int parent) {
+			this.parent = parent;
+		}
+
+		public int getPosicion() {
+			return posicion;
+		}
+
+		public void setPosicion(int posicion) {
+			this.posicion = posicion;
+		}
+
+		public BTNode<T>[] getMyTree() {
 			return myTree;
 		}
 	    
@@ -47,33 +60,29 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 
 	    /** Returns the left child of this position */
 	    public BTNode<T> getLeft() {
-	        return left;
-	    }
-
-	    /** Sets the left child of this position */
-	    public void setLeft(BTNode<T> v) {
-	        left = v;
+	    	if (getMyTree().length > 2*posicion+1)
+	    		return getMyTree()[2*posicion+1];
+	    	return null;
 	    }
 
 	    /** Returns the right child of this position */
 	    public BTNode<T> getRight() {
-	        return right;
-	    }
-
-	    /** Sets the right child of this position */
-	    public void setRight(BTNode<T> v) {
-	        right = v;
+	    	if (getMyTree().length > 2*posicion+2)
+	    		return getMyTree()[2*posicion+2];
+	    	return null;
 	    }
 
 	    /** Returns the parent of this position */
 	    public BTNode<T> getParent() {
+	    	if (parent != -1)
+	    		return getMyTree()[parent];
+	    	return null;
+	    }
+	    public int getParentPosition() {
 	        return parent;
 	    }
 
-	    /** Sets the parent of this position */
-	    public void setParent(BTNode<T> v) {
-	        parent = v;
-	    }
+	   
 	}
 	
 	BTNode<E>[] l;
@@ -85,7 +94,7 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	}
 	public ArrayBinaryTree(E value) {
 		l = new BTNode[10];
-		l[0]= new BTNode<E>(value,null,null,null,l);
+		l[0]= new BTNode<E>(value,-1,l,0);
 		size = 1;
 		
 	}
@@ -106,49 +115,90 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 
 	@Override
 	public Position<E> parent(Position<E> v) throws IllegalStateException {
-		int posicion = checkposition(v);
-		return l[posicion].parent;
+		int posicion = checkPosition(v);
+		return l[l[posicion].parent];
 	}
 
 	@Override
 	public Iterable<? extends Position<E>> children(Position<E> v) throws IllegalStateException {
-		BTNode posicion = checkposition(v);
-		List child = new ArrayList<>();
-		child.add();
-		
-		return null;
+		int posicion = checkPosition(v);
+		List<Position<E>> child = new ArrayList<>();
+		child.add(l[posicion].getRight());
+		child.add(l[posicion].getLeft());		
+		return child;
 	}
 
 	@Override
 	public boolean isLeaf(Position<E> v) throws IllegalStateException {
 		// TODO Auto-generated method stub
-		return false;
+		return !isInternal(v);
 	}
 
 	@Override
 	public boolean isRoot(Position<E> v) throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return false;
+		int posicion = checkPosition(v);
+		return posicion==0;
 	}
 
 	@Override
 	public Position<E> addRoot(E e) throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
+		l[0]= new BTNode<E>(e,-1,l,0);
+		return l[0];
 	}
 
 	@Override
 	public void removeSubtree(Position<E> p) throws IllegalStateException {
-		// TODO Auto-generated method stub
-		
+		int posicion = checkPosition(p);
+		BTNode<E> node = l[posicion]; 
+		if(node.getParentPosition()!=-1){
+			TreeIterator<E> it = new TreeIterator<>(this,node);
+			 int cont = 0;
+			 while(it.hasNext()){
+				 posicion = checkPosition(it.next());
+				 BTNode<E> nNode = l[posicion];
+				 nNode.setMyTree(null);
+				 l[posicion] = null;
+				 cont++;
+			 }
+			 size = size - cont;
+		}else{			
+			this.size = 0;
+		}
+		node.setMyTree(null);
+		l[node.posicion]=null;		
 	}
 
 	@Override
 	public E remove(Position<E> p) throws IllegalStateException {
-		// TODO Auto-generated method stub
+		int posicion = checkPosition(p);
+		BTNode nodeRemove = l[posicion];
+		if(l[posicion].getRight()!= null && l[posicion].getLeft()!=null){
+			throw new IllegalStateException("Cannot remove node with two children");
+		}else{
+			if (l[posicion].getRight()!= null){
+				TreeIterator<E> it = new TreeIterator<>(this,l[posicion]);
+				ArrayList<BTNode<E>> s = new ArrayList<>(); 
+				while(it.hasNext()){
+					 posicion = checkPosition(it.next());
+					 BTNode<E> nNode = l[posicion];
+					 s.add(nNode);
+				}
+				l[s.get(0).getParentPosition()]=s.get(0);
+				s.get(0).parent= l[s.get(0).parent].parent;
+				s.remove(0);
+				while(s.size()>0){
+					if(s.get(0).posicion!=0){
+						
+					}else{
+						
+					}
+				}
+			}
+		}
 		return null;
 	}
-
+	
+	
 	@Override
 	public void swapElements(Position<E> p1, Position<E> p2) throws IllegalStateException {
 		// TODO Auto-generated method stub
@@ -220,11 +270,15 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	/**
 	 * If v is a good binary tree node, cast to BTPosition, else throw exception
 	 */
-	private BTNode<E> checkPosition(Position<E> p)
+	private int checkPosition(Position<E> p)
 			{
 		if (p == null || !(p instanceof BTNode))
 			throw new IllegalStateException("The position is invalid");
-		return (BTNode<E>) p;
+		BTNode<E> node = (BTNode<E>) p;
+		if(node.myTree != l){
+			throw new IllegalStateException("The position is invalid");
+		}
+		return ((BTNode<E>) p).getPosicion();
 	}
 
 	/**

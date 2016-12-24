@@ -383,7 +383,27 @@ public class LinkedBinaryTree<E> implements BinaryTree<E> {
 
 	@Override
 	public void removeSubtree(Position<E> p) throws IllegalStateException {
-		throw new UnsupportedOperationException("Not yet implemented");		
+		BTNode<E> node = checkPosition(p); 
+		if(node.getParent()!=null){
+			TreeIterator<E> it = new TreeIterator<>(this,node);
+			 int cont = 0;
+			 while(it.hasNext()){
+				 BTNode<E> nNode = checkPosition(it.next());
+				 nNode.setMyTree(null);
+				 cont++;
+			 }
+			 size = size - cont;
+			 BTNode<E> parent = node.getParent();
+			 if (parent.getRight().equals(node)){
+				 parent.right=null;
+			 }else{
+				 parent.left=null;
+			 }
+		}else{
+			this.root=null;
+			this.size = 0;
+		}
+		node.setMyTree(null);	
 	}
 	
 	public void swap(Position<E> p1, Position<E> p2) {
