@@ -9,14 +9,13 @@ import material.exercises.TreeDirectory;
 public class prueba {
 
 	public static void main(String[] args) {
-		ArrayList l = new ArrayList<>();
-		for (int i = 0; i<5;i++){
-			l.add(i);
+		String palabra = "hola";
+		char[] palbraChar = new char[palabra.length()];
+		palabra.getChars(0, palabra.length(), palbraChar, 0);
+		for(char le : palbraChar){
+			System.out.println(le);
 		}
-		while(l.size()>0){
-			System.out.println(l.get(0));
-			l.remove(0);
-		}
+		
 	}
 
 }

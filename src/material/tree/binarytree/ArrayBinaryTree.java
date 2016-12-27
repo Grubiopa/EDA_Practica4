@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
+import javax.security.auth.callback.ChoiceCallback;
+
 import material.tree.Position;
 import material.tree.binarytree.LinkedBinaryTree.BTNode;
 import material.tree.iterators.TreeIterator;
@@ -81,19 +83,26 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	    public int getParentPosition() {
 	        return parent;
 	    }
-
+	    
+	    public void setLeft(Position<E> pos){
+	    	if (getMyTree().length < 2*posicion+1){
+	    		overSize();
+	    	}
+	    	l[2*posicion+1]= new BTNode<E>(pos.getElement(),posicion,l , 2*posicion+1);	    	
+	    }
 	   
 	}
 	
 	BTNode<E>[] l;
 	int size;
+	int arraysize=10;
 	
 	public ArrayBinaryTree() {
-		l = new BTNode[10];
+		l = new BTNode[arraysize];
 		size = 0;
 	}
 	public ArrayBinaryTree(E value) {
-		l = new BTNode[10];
+		l = new BTNode[arraysize];
 		l[0]= new BTNode<E>(value,-1,l,0);
 		size = 1;
 		
@@ -130,7 +139,7 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 
 	@Override
 	public boolean isLeaf(Position<E> v) throws IllegalStateException {
-		// TODO Auto-generated method stub
+		
 		return !isInternal(v);
 	}
 
@@ -143,6 +152,7 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	@Override
 	public Position<E> addRoot(E e) throws IllegalStateException {
 		l[0]= new BTNode<E>(e,-1,l,0);
+		size++;
 		return l[0];
 	}
 
@@ -201,70 +211,133 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	
 	@Override
 	public void swapElements(Position<E> p1, Position<E> p2) throws IllegalStateException {
-		// TODO Auto-generated method stub
+		int pos1 = checkPosition(p1);
+		int pos2 = checkPosition(p2);
+		E temp = l[pos1].getElement();
+		l[pos1].setElement(l[pos2].getElement());
+		l[pos2].setElement(temp);
 		
 	}
 
 	@Override
 	public E replace(Position<E> p, E e) throws IllegalStateException {
-		// TODO Auto-generated method stub
-		return null;
+		int posicion =  checkPosition(p);
+		E ele= l[posicion].getElement();
+		l[posicion].setElement(e);
+		return ele;
 	}
 
 	@Override
 	public Iterator<Position<E>> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeIterator<>(this);
 	}
 
 	@Override
 	public Position<E> left(Position<E> v) {
-		// TODO Auto-generated method stub
-		return null;
+		int posicion = checkPosition(v);
+		return l[posicion].getLeft();
 	}
 
 	@Override
 	public Position<E> right(Position<E> v) {
-		// TODO Auto-generated method stub
-		return null;
+		int posicion = checkPosition(v);
+		return l[posicion].getRight();
 	}
 
 	@Override
 	public boolean hasLeft(Position<E> v) {
-		// TODO Auto-generated method stub
-		return false;
+		int posicion = checkPosition(v);
+		return l[posicion].getLeft()!=null;
 	}
 
 	@Override
 	public boolean hasRight(Position<E> v) {
-		// TODO Auto-generated method stub
-		return false;
+		int posicion = checkPosition(v);
+		return l[posicion].getRight()!=null;
 	}
 
 	@Override
 	public Position<E> sibling(Position<E> p) {
-		// TODO Auto-generated method stub
-		return null;
+		int posicion = checkPosition(p);
+		BTNode<E> node = l[posicion];
+		BTNode<E> parentPos = node.getParent();
+		if (parentPos != null) {
+			BTNode<E> sibPos;
+			BTNode<E> leftPos = parentPos.getLeft();
+			if (leftPos == node)
+				sibPos = parentPos.getRight();
+			else
+				sibPos = parentPos.getLeft();
+			if (sibPos != null)
+				return sibPos;
+		}
+		throw new IllegalStateException("No sibling");
 	}
-
+	
+	private void overSize(){
+		BTNode<E>[] newArray = new BTNode[arraysize*2+2];
+		for(int i=0;i<arraysize;i++){
+			newArray[i]=l[i];
+		}
+		l=newArray;
+		arraysize=arraysize*2;
+	}
 	@Override
 	public Position<E> insertLeft(Position<E> p, E e) {
-		// TODO Auto-generated method stub
-		return null;
+		int posicion = checkPosition(p);
+		if(posicion *2 +1 >arraysize){
+			overSize();
+		}
+		l[posicion*2+1]= new BTNode<E>(e, posicion, l, posicion*2+1);
+		size++;
+		return l[posicion*2+1];
 	}
 
 	@Override
 	public Position<E> insertRight(Position<E> p, E e) {
-		// TODO Auto-generated method stub
-		return null;
+		int posicion = checkPosition(p);
+		if(posicion *2 +1 >arraysize){
+			overSize();
+		}
+		l[posicion*2+2]= new BTNode<E>(e, posicion, l, posicion*2+2);
+		size++;
+		return l[posicion*2+2];
 	}
-
+	
+	
 	@Override
 	public void attach(Position<E> p, BinaryTree<E> t1, BinaryTree<E> t2) {
-		// TODO Auto-generated method stub
-		
+		/*int posicion = checkPosition(p);
+		if(isInternal(p))
+			throw new IllegalStateException("Cannot attach from internal node");
+		int newSize = size + t1.size() + t2.size();
+		if (!t1.isEmpty()) {
+			Position<E> r1 = t1.root();
+			l[posicion].setLeft(r1);
+			////////VOY POR AQUI//////
+			for (Position<E> childR1 : t1) {
+				BTNode<E> btChildR1 = (BTNode<E>) childR1;
+				btChildR1.setMyTree(this);
+			}
+		}
+		if (!t2.isEmpty()) {
+			Position<E> r2 = t2.root();
+			l[posicion].setLeft(r2);
+			r2.setParent(node); // T2 should be invalidated
+			for (Position<E> childR2 : t2) {
+				BTNode<E> btChildR2 = (BTNode<E>) childR2;
+				btChildR2.setMyTree(this);
+			}
+		}
+		size = newSize;*/
 	}
-	public boolean isInternal(Position<E> v) {}
+	public boolean isInternal(Position<E> v) {
+		int posicion = checkPosition(v);
+		if(posicion*2+1<arraysize){
+			return l[posicion*2+1] !=null || l[posicion*2+2]!=null;
+		}
+		return false;
+	}
 	
 		// Auxiliary methods
 	/**
@@ -324,36 +397,15 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	 *            new root node
 	 */
 	public void subTree(Position<E> v) {
-		root = checkPosition(v);
-		size = calculateSize(root);
+		int posicion = checkPosition(v);
+		size = calculateSize(l[posicion]);
 	}
 
 	public void swap(Position<E> p1, Position<E> p2) {
-        BTNode<E> node1 = checkPosition(p1);
-        BTNode<E> node2 = checkPosition(p2);
-        
-        BTNode<E> copyNode1 = new BTNode <>(node1.element,node1.parent, node1.left, node1.right, this);
-
-        node1.parent = node2.parent == node1 ? node2 : node2.parent;
-        node1.left = node2.left == node1 ? node2 : node2.left;
-        node1.right = node2.right == node1 ? node2 : node2.right;
-                       
-        node2.parent = copyNode1.parent == node2 ? node1 : copyNode1.parent;
-        node2.left = copyNode1.left == node2 ? node1 : copyNode1.left;
-        node2.right = copyNode1.right == node2 ? node1 : copyNode1.right;
-
-        if (node1.parent != null) {
-            if (node1.parent.left == node2)
-                node1.parent.left = node1;
-            else
-                node1.parent.right = node1;
-        }
-
-        if (node2.parent != null) {
-            if (node2.parent.left == node1)
-                node2.parent.left = node2;
-            else
-                node2.parent.right = node2;            
-        }
+        int pos1 = checkPosition(p1);
+        int pos2 = checkPosition(p2);
+        E aux = l[pos1].getElement();
+        l[pos1].setElement(l[pos2].getElement());
+        l[pos2].setElement(aux);
     }
 }

@@ -22,7 +22,11 @@ public class BinaryTreeUtils<E> {
 	* Determines whether the element e is the tree or not
 	*/
 	public boolean contains (E e) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		for (Position<E> childR1 : this.tree) {
+			if(e==childR1.getElement())
+				return true;
+		}
+		return false;
 	}
 	
 	
@@ -30,7 +34,9 @@ public class BinaryTreeUtils<E> {
 	* Determines the level of a node in the tree
 	*/
 	public int level(Position<E> p) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		if (p!= this.tree.root())
+			return 1 + level(this.tree.parent(p));
+		return 0;
 	}
 	
 }

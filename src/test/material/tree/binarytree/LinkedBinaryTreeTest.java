@@ -9,11 +9,12 @@ import java.util.Set;
 import org.junit.Test;
 
 import material.tree.Position;
+import material.tree.binarytree.ArrayBinaryTree;
 import material.tree.binarytree.LinkedBinaryTree;
 
 public class LinkedBinaryTreeTest {
 	
-	private LinkedBinaryTree<String> tree = new LinkedBinaryTree<>();
+	private ArrayBinaryTree<String> tree = new ArrayBinaryTree<>();
 	
 	public void setTree() {
 		Position<String> a = tree.addRoot("A");
