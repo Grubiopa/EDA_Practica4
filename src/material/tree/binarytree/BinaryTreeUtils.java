@@ -1,5 +1,7 @@
 package material.tree.binarytree;
 
+import java.util.Iterator;
+
 import material.tree.Position;
 
 public class BinaryTreeUtils<E> {
@@ -15,9 +17,24 @@ public class BinaryTreeUtils<E> {
 	* become right children and vice versa
 	*/
 	public BinaryTree<E> mirror() {
-		throw new UnsupportedOperationException("Not yet implemented");
+		BinaryTree<E> newTree = new LinkedBinaryTree<>();
+		newTree.addRoot(this.tree.root().getElement());		
+		newTree= recolocateMirror(newTree, this.tree.root());
+		return newTree;
 	}
 	
+	private BinaryTree<E> recolocateMirror(BinaryTree<E> ntree,Position<E> pos){
+		BinaryTree<E> nbTree = ntree;
+		if(this.tree.right(pos)!=null){
+			nbTree.insertLeft(pos, this.tree.right(pos).getElement());
+			recolocateMirror(ntree, this.tree.right(pos));		
+		}
+		if(this.tree.hasLeft(pos)){
+			nbTree.insertRight(pos, this.tree.left(pos).getElement());
+			recolocateMirror(ntree, this.tree.left(pos));
+		}
+		return nbTree;
+	}
 	/**
 	* Determines whether the element e is the tree or not
 	*/

@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import material.tree.Position;
 import material.tree.binarytree.BinaryTree;
 import material.tree.binarytree.LinkedBinaryTree;
+import material.tree.iterators.FrontIterator;
+import material.tree.iterators.TreeIterator;
 
 public class Huffman {
 	
@@ -93,8 +96,45 @@ public class Huffman {
 	
 	public String encode(char c) {
 		String sol = "";
-		throw new UnsupportedOperationException("Not yet implemented");
+		FrontIterator<Element> it = new FrontIterator<>(listaElement.get(0));
+		while(it.hasNext()|| sol==""){
+			Position<Element> p = it.next();
+			sol = advanceEnconde(c, p);
+		}
+		if(sol=="")
+			throw new IllegalStateException();
+		else
+			return sol;
 	}
 	
+	private String advanceEnconde(char c,Position<Element> p){
+		Position<Element> parent = listaElement.get(0).parent(p);
+		String auxsol="";
+		if(parent!=null){
+			if(listaElement.get(0).right(parent)==p){
+				if (p.getElement().getLetra()== c)
+					return "1";
+				else{
+					auxsol= advanceEnconde(c, parent);
+					if(auxsol=="")
+						return "";
+					else
+						return "1" + auxsol;
+				}
+			}else{
+				if (p.getElement().getLetra()== c)
+					return "0";
+				else{
+					auxsol= advanceEnconde(c, parent);
+					if(auxsol=="")
+						return "";
+					else
+						return "0" + auxsol;
+				}
+			}
+		}else{
+			return "";
+		}		
+	}
 	
 }

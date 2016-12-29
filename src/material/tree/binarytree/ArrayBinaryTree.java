@@ -1,6 +1,7 @@
 package material.tree.binarytree;
 
 
+import java.nio.channels.IllegalSelectorException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -119,21 +120,28 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 
 	@Override
 	public Position<E> root() throws IllegalStateException {
+		if(l[0]==null)
+			throw new IllegalStateException();
 		return l[0];
 	}
 
 	@Override
 	public Position<E> parent(Position<E> v) throws IllegalStateException {
 		int posicion = checkPosition(v);
+		if(posicion == 0)
+			throw new IllegalStateException("is the root");
 		return l[l[posicion].parent];
 	}
 
 	@Override
-	public Iterable<? extends Position<E>> children(Position<E> v) throws IllegalStateException {
+	public Iterable<? extends Position<E>> children(Position<E> v)  {
 		int posicion = checkPosition(v);
 		List<Position<E>> child = new ArrayList<>();
-		child.add(l[posicion].getRight());
-		child.add(l[posicion].getLeft());		
+		if(l[posicion].getLeft()!=null && (posicion*2+2<arraysize))
+			child.add(l[posicion].getLeft());
+		if(l[posicion].getRight()!=null && (posicion*2+1<arraysize))
+			child.add(l[posicion].getRight());
+	
 		return child;
 	}
 
@@ -177,35 +185,48 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 		node.setMyTree(null);
 		l[node.posicion]=null;		
 	}
-
+	
+	private void recolocar(BTNode<E> p,int padrePos){
+		int posIzq=padrePos*2+1;
+		if(p.getLeft()!=null){
+			l[posIzq]=p.getLeft();
+			l[posIzq].setParent(padrePos);
+			l[posIzq].setPosicion(posIzq);
+			recolocar(l[posIzq],posIzq);
+		}
+		if(p.getRight()!=null){
+			l[posIzq + 1]=p.getRight();
+			l[posIzq + 1].setParent(padrePos);
+			l[posIzq + 1].setPosicion(posIzq + 1);
+			recolocar(l[posIzq+1],posIzq + 1);
+		}
+	}
 	@Override
 	public E remove(Position<E> p) throws IllegalStateException {
 		int posicion = checkPosition(p);
-		BTNode nodeRemove = l[posicion];
+		BTNode<E> nodeRemove = l[posicion];
+		BTNode<E> changeNode;
 		if(l[posicion].getRight()!= null && l[posicion].getLeft()!=null){
 			throw new IllegalStateException("Cannot remove node with two children");
-		}else{
+			
+		}else if(l[posicion].getRight()!= null || l[posicion].getLeft()!=null){
 			if (l[posicion].getRight()!= null){
-				TreeIterator<E> it = new TreeIterator<>(this,l[posicion]);
-				ArrayList<BTNode<E>> s = new ArrayList<>(); 
-				while(it.hasNext()){
-					 posicion = checkPosition(it.next());
-					 BTNode<E> nNode = l[posicion];
-					 s.add(nNode);
-				}
-				l[s.get(0).getParentPosition()]=s.get(0);
-				s.get(0).parent= l[s.get(0).parent].parent;
-				s.remove(0);
-				while(s.size()>0){
-					if(s.get(0).posicion!=0){
-						
-					}else{
-						
-					}
-				}
+				changeNode = l[posicion].getRight();
+				recolocar(l[posicion].getRight(),posicion);
+				
+			}else{
+				changeNode = l[posicion].getLeft();
+				recolocar(l[posicion].getLeft(),posicion);
 			}
+				l[posicion] = changeNode;
+				l[posicion].setParent(nodeRemove.parent);
+				l[posicion].setPosicion(posicion);
+			
+		}else{
+			l[posicion]=null;
 		}
-		return null;
+		
+		return nodeRemove.getElement();
 	}
 	
 	
@@ -233,14 +254,18 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	}
 
 	@Override
-	public Position<E> left(Position<E> v) {
+	public Position<E> left(Position<E> v) throws IllegalStateException{
 		int posicion = checkPosition(v);
+		if (l[posicion].getLeft()== null)
+			throw new IllegalStateException("no left child");
 		return l[posicion].getLeft();
 	}
 
 	@Override
 	public Position<E> right(Position<E> v) {
 		int posicion = checkPosition(v);
+		if(l[posicion].getRight()==null)
+			throw new IllegalStateException("no right child");
 		return l[posicion].getRight();
 	}
 
@@ -307,29 +332,35 @@ public class ArrayBinaryTree<E> implements BinaryTree<E> {
 	
 	@Override
 	public void attach(Position<E> p, BinaryTree<E> t1, BinaryTree<E> t2) {
-		/*int posicion = checkPosition(p);
+		checkPosition(p);
 		if(isInternal(p))
 			throw new IllegalStateException("Cannot attach from internal node");
 		int newSize = size + t1.size() + t2.size();
 		if (!t1.isEmpty()) {
 			Position<E> r1 = t1.root();
-			l[posicion].setLeft(r1);
-			////////VOY POR AQUI//////
-			for (Position<E> childR1 : t1) {
-				BTNode<E> btChildR1 = (BTNode<E>) childR1;
-				btChildR1.setMyTree(this);
-			}
+			Position<E> node = insertLeft(p,r1.getElement());
+			recolocateNodes(t1.left(t1.root()), t1.right(t1.root()), t1, node);
+			remove(t1.root());
 		}
 		if (!t2.isEmpty()) {
 			Position<E> r2 = t2.root();
-			l[posicion].setLeft(r2);
-			r2.setParent(node); // T2 should be invalidated
-			for (Position<E> childR2 : t2) {
-				BTNode<E> btChildR2 = (BTNode<E>) childR2;
-				btChildR2.setMyTree(this);
-			}
+			Position<E> node = this.insertRight(p, r2.getElement());
+			recolocateNodes(t2.left(t2.root()), t2.right(t2.root()), t2, node);
+			remove(t2.root());
 		}
-		size = newSize;*/
+		this.size = newSize;
+	}
+	private void recolocateNodes(Position<E> lChild, Position<E> rChild,BinaryTree<E> t, Position<E> node){
+		if(lChild!=null){
+			Position<E> pos = insertLeft(node, lChild.getElement());
+			recolocateNodes(t.left(lChild), t.right(lChild), t, pos);
+			remove(lChild);
+		}
+		if(rChild != null){
+			Position<E> pos = insertRight(node, rChild.getElement());
+			recolocateNodes(t.left(rChild), t.right(rChild), t, pos);
+			remove(rChild);
+		}
 	}
 	public boolean isInternal(Position<E> v) {
 		int posicion = checkPosition(v);
