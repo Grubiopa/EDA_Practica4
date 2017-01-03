@@ -2,6 +2,7 @@ package material.ordereddictionary;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import material.tree.Position;
@@ -194,7 +195,25 @@ abstract public class AbstractTreeOrderedDict<K, V> implements
     }
 
     public Iterable<Entry<K, V>> findRange(K minkey, K maxkey) throws InvalidKeyException {
-        return null;
+    	checkKey(minkey); // may throw an InvalidKeyException
+    	checkKey(maxkey);
+    	
+        Entry<K, V> entry = find(minkey);
+        Entry<K, V> entry2 = find(maxkey);
+      
+
+        int menor = this.bsTree.find(entry).hashCode();
+        int mayor = this.bsTree.find(entry2).hashCode();
+        
+        List<Entry<K, V>> entryList = new ArrayList<>();
+        for(Position<Entry<K, V>> pos : this.bsTree){
+            DictEntry<K, V> aux = (DictEntry<K, V>) pos.getElement();
+            aux.setPosition(pos);          
+        	if(pos.hashCode()>=menor && pos.hashCode()<=mayor)
+        		 entryList.add(aux);
+        }
+        
+        return entryList;
     }
 
 }

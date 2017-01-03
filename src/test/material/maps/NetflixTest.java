@@ -2,6 +2,7 @@ package test.material.maps;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -14,48 +15,48 @@ public class NetflixTest {
 	
 	private Netflix netflix;
 	
-	public void setUpNetflix() {
-		netflix = new Netflix("netflix_reduced.txt");
+	public void setUpNetflix() throws IOException {
+		netflix = new Netflix("C:/Users/gabri/Documents/netflix.txt");
 	}
 
 	@Test
-	public void testFindTitle() {
+	public void testFindTitle() throws IOException {
 		setUpNetflix();
 		Movie movie = netflix.findTitle("Venganza");
 		assertEquals("Venganza", movie.getTitle());
 	}
 
 	@Test
-	public void testFindYear() {
+	public void testFindYear() throws IOException {
 		setUpNetflix();
 		Set<Movie> movies2013 = netflix.findYear(2013);
 		assertEquals(3, movies2013.size());
 		for (Movie m : movies2013) {
-			assertTrue(m.getTitle().equals("Los juegos del hambre: En llamas") || m.getTitle().equals("La Gran Familia Española")
+			assertTrue(m.getTitle().equals("Los juegos del hambre: En llamas") || m.getTitle().equals("La Gran Familia Española")
 					|| m.getTitle().equals("El Hombre de Acero"));
 		}
 	}
 
 	@Test
-	public void testFindScore() {
+	public void testFindScore() throws IOException {
 		setUpNetflix();
 		Set<Movie> movies = netflix.findScore(3, 4);
 		assertEquals(3, movies.size());
 		for (Movie m : movies) {
 			assertTrue(m.getTitle().equals("Postdata: te quiero") 
-					|| m.getTitle().equals("El Hombre de Acero")
+					||m.getTitle().equals("El Hombre de Acero")
 					|| m.getTitle().equals("Pacific Rim"));
 		}
 	}
 
 	@Test
-	public void testFindTypeString() {
+	public void testFindTypeString() throws IOException {
 		setUpNetflix();
 		Set<Movie> movies = netflix.findType("accion");
 		assertEquals(5, movies.size());
 		for (Movie m : movies) {
 			assertTrue(m.getTitle().equals("Los juegos del hambre: En llamas") 
-					|| m.getTitle().equals("Venganza")
+					|| m.getTitle().equals("Venganza")
 					|| m.getTitle().equals("Beasts of no nation")
 					|| m.getTitle().equals("El Hombre de Acero")
 					|| m.getTitle().equals("Pacific Rim"));
@@ -63,19 +64,19 @@ public class NetflixTest {
 	}
 
 	@Test
-	public void testFindTypeListOfString() {
+	public void testFindTypeListOfString() throws IOException {
 		setUpNetflix();
 		Set<Movie> movies = netflix.findType(Arrays.asList("accion", "thriller"));
 		assertEquals(3, movies.size());
 		for (Movie m : movies) {
 			assertTrue(m.getTitle().equals("Los juegos del hambre: En llamas") 
-					|| m.getTitle().equals("Venganza")
+					|| m.getTitle().equals("Venganza")
 					|| m.getTitle().equals("Pacific Rim"));
 		}
 	}
 
 	@Test
-	public void testAddScore() {
+	public void testAddScore() throws IOException {
 		setUpNetflix();
 		netflix.addScore("Como en casa en ningun sitio", 5);
 		netflix.addScore("Como en casa en ningun sitio", 2);

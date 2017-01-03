@@ -1,6 +1,7 @@
 package material.exercises.netflix;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,16 +21,20 @@ public class Netflix {
 		String film;
 		films = new HashMap<>();
 		data.replace('\\','/');
-		FileReader f = new FileReader(data);
+		File file = new File(data);
+		FileReader f = new FileReader(file);
 		BufferedReader b = new BufferedReader(f);
 		while((film = b.readLine())!=null){
-			String[] filmDivide = film.split(";");
+			String[] filmDivide = film.split(" - ");
 			String[] StringDivde= filmDivide[3].split(",");
 			List<String> Strings = new ArrayList<>();
 			for(int i=0;i<StringDivde.length;i++){
-				Strings.add(String.valueOf(StringDivde[i]));
+				String splitTitle = String.valueOf(StringDivde[i]).replace(" ", "");
+				splitTitle= splitTitle.replace("[", "");
+				splitTitle=splitTitle.replace("]", "");
+				Strings.add(String.valueOf(splitTitle));
 			}
-			Puntuacion points = new Puntuacion(Float.parseFloat(filmDivide[2]));
+			Double points = (Double.parseDouble(filmDivide[2]));
 			Movie movie = new Movie(filmDivide[0], Integer.parseInt(filmDivide[1]), points, Strings);
 			films.put(movie.getTitle(), movie);
 		}
@@ -52,8 +57,8 @@ public class Netflix {
 	public Set<Movie> findScore(float minScore, float maxScore) {
 		Set<Movie> sol = new HashSet<>();
 		for(Map.Entry<String,Movie> m:films.entrySet()){
-			if(m.getValue().getPoints().getValue()>=minScore &&
-					m.getValue().getPoints().getValue()<=maxScore)
+			if( m.getValue().getScore()>=minScore &&
+					m.getValue().getScore()<=maxScore)
 				sol.add(m.getValue());
 		}
 		return sol;
@@ -87,7 +92,7 @@ public class Netflix {
 	public void addScore(String title, float score) {
 		for(Map.Entry<String,Movie> m:films.entrySet()){
 			if(m.getValue().getTitle()==title)
-				m.getValue().setPoints(new Puntuacion(score));
+				m.getValue().setPoints((double) score);
 		}
 	}
 	

@@ -53,13 +53,13 @@ public interface BinarySearchTree<E> extends Iterable<Position<E>> {
     int size();
     
 //    /**Returns the position with the smallest value in the tree. */
-//    public Position<E> first();
+   public Position<E> first();
 //    /**Returns the position with the largest value in the tree. */
-//    public Position<E> last();
+    public Position<E> last();
 //    /**Returns an iterable collection with all values smaller than pos*/
-//    public Iterable<Position<E>> successors(Position<E> pos);
+    public Iterable<Position<E>> successors(Position<E> pos);
 //    /**Returns an iterable collection with all values larger than pos*/
-//    public Iterable<Position<E>> predecessors(Position<E> pos);
+    public Iterable<Position<E>> predecessors(Position<E> pos);
 
     
     

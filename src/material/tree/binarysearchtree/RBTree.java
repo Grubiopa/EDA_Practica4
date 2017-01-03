@@ -353,4 +353,35 @@ public class RBTree<E> implements BinarySearchTree<E> {
         return nodo;
     }
 
+	@Override
+	public Iterable<Position<E>> successors(Position<E> pos) {
+		LinkedBinarySearchTree<RBInfo<E>> copyBst=this.bst;
+		ArrayList<Position<E>> l = new ArrayList<>();
+		if (checkPosition(pos)){
+			while(copyBst.last()!=pos){
+				l.add((Position<E>) copyBst.last());
+				copyBst.remove(copyBst.last());
+			}
+		}
+		return l;
+	}
+
+	@Override
+	public Iterable<Position<E>> predecessors(Position<E> pos) {
+		Iterator<Position<RBTree<E>.RBInfo<E>>> it = bst.iterator();
+		ArrayList<Position<E>> l = new ArrayList<>();
+		checkPosition(pos);		
+		while(it.next()!=pos && it.hasNext()){
+			Position<E> p = (Position<E>) it.next();
+			l.add(p);
+		}
+		return l;
+	}
+	
+	private boolean checkPosition(Position<E> p) throws IllegalStateException{
+		if (p == null || !(p instanceof RBInfo))
+			throw new IllegalStateException("The position is invalid");
+		return true;
+	}
+
 }

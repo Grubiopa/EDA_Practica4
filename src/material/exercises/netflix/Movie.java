@@ -10,7 +10,7 @@ public class Movie {
 	
 	private String title;
 	private int year;
-	private Puntuacion points;
+	private Double points;
 	private List<String> gender;
 	
 	public String getTitle() {
@@ -25,10 +25,10 @@ public class Movie {
 	public void setYear(int year) {
 		this.year = year;
 	}
-	public Puntuacion getPoints() {
+	public Double getScore() {
 		return points;
 	}
-	public void setPoints(Puntuacion points) {
+	public void setPoints(Double points) {
 		this.points = points;
 	}
 	public List<String> getGender() {
@@ -37,7 +37,7 @@ public class Movie {
 	public void setGender(List<String> gender) {
 		this.gender = gender;
 	}
-	public Movie(String title, int year, Puntuacion points, List<String> gender) {
+	public Movie(String title, int year, Double points, List<String> gender) {
 		this.title = title;
 		this.year = year;
 		this.points = points;
