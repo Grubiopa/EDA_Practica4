@@ -78,8 +78,8 @@ public class Netflix {
 		Set<Movie> sol = new HashSet<>();
 		for(Map.Entry<String,Movie> m:films.entrySet()){
 			List<String> l = m.getValue().getGender();
-			for(String g :type){
-				boolean add = false;
+			boolean add = false;
+			for(String g :type ){				
 				if(l.contains(g)&&!add){
 					sol.add(m.getValue());
 					add = true;
@@ -90,10 +90,10 @@ public class Netflix {
 	}
 	
 	public void addScore(String title, float score) {
-		for(Map.Entry<String,Movie> m:films.entrySet()){
-			if(m.getValue().getTitle()==title)
-				m.getValue().setPoints((double) score);
-		}
+		Movie m = findTitle(title);
+		double media = (m.getScore() + (double) score)/2; 
+		m.setPoints(media);
+		
 	}
 	
 }

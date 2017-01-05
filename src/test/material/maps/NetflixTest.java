@@ -78,10 +78,10 @@ public class NetflixTest {
 	@Test
 	public void testAddScore() throws IOException {
 		setUpNetflix();
-		netflix.addScore("Como en casa en ningun sitio", 5);
-		netflix.addScore("Como en casa en ningun sitio", 2);
-		netflix.addScore("Como en casa en ningun sitio", 1);
-		assertEquals(3.0, netflix.findTitle("Como en casa en ningun sitio").getScore(), 0.1);
+		netflix.addScore("Venganza", 5);
+		netflix.addScore("Venganza", 2);
+		netflix.addScore("Venganza", 1);
+		assertEquals(3.0, netflix.findTitle("Venganza").getScore(), 0.1);
 	}
 
 }
