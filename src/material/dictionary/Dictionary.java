@@ -3,7 +3,7 @@ package material.dictionary;
 /**
  * An interface for a map which binds a key uniquely to a value.
  *
- * @author R. Cabido, A. Duarte, and J. Velez
+ * @author Gabriel Rubio Palacios
  * @param <K> Key class
  * @param <V> Value class
  */

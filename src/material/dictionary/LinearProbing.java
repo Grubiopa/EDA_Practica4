@@ -2,7 +2,7 @@ package material.dictionary;
 
 /**
  * Linear probing method used by HashDictionary
- * @author jvelez
+ * @author Gabriel Rubio Palacios
  * @param <K>
  * @param <V>
  */

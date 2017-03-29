@@ -2,7 +2,7 @@ package material.dictionary;
 
 /**
  *
- * @author jvelez
+ * @author Gabriel Rubio Palacios
  */
 public class DoubleHashProbing <K,V> implements ProbingMethod <K, V> {
 

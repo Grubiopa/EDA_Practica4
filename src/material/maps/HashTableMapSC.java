@@ -1,8 +1,10 @@
 package material.maps;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 
 
@@ -33,14 +35,8 @@ public class HashTableMapSC<K, V> implements Map<K, V> {
 		public T getKey() {
 			return key;
 		}
-		public void setKey(T key) {
-			this.key = key;
-		}
 		public U getValue() {
 			return value;
-		}
-		public void setValue(U value) {
-			this.value = value;
 		}
 		public HashEntry(T key, U value) {
 			this.key = key;
@@ -59,24 +55,55 @@ public class HashTableMapSC<K, V> implements Map<K, V> {
     }
 
     private class HashTableMapIterator<T, U> implements Iterator<Entry<T, U>> {
-
+    	
+    	private ArrayList<HashEntry<T, U>>[] map;
+    	private int numElems;
+    	private Queue<HashEntry<T, U>> q;
+    	private int index;
         //Ejercicio 2.2
         public HashTableMapIterator(ArrayList<HashEntry<T, U>>[] map, int numElems) {
-            throw new UnsupportedOperationException("Not yet implemented");
+            this.map = map;
+            this.numElems= numElems;
+            q = new ArrayDeque<>();
+            int i=0;
+            boolean first=false;
+            while(!first && numElems!=0 && i<map.length){
+            	if(map[i]!=null){
+            		for(Entry<T, U> e: map[i])
+            			q.add((HashTableMapSC<K, V>.HashEntry<T, U>) e);
+            		first=true;
+            	}
+            	i++;
+            }
+            index=i-1;
         }
 
         private void goToNextElement() {
-            throw new UnsupportedOperationException("Not yet implemented");
+            index++;
         }
 
         @Override
         public boolean hasNext() {
-            throw new UnsupportedOperationException("Not yet implemented");
+        	boolean hasNext = q.size()>0;
+        	if(index<map.length-1 && !hasNext && numElems>0){
+        		while(index < map.length && !hasNext){
+        			index++;
+        			hasNext=map[index]!=null;
+        		}        			
+        	}
+        	return hasNext;
         }
 
         @Override
         public Entry<T, U> next() {
-            throw new UnsupportedOperationException("Not yet implemented");
+           Entry<T, U> e = q.poll();
+           if(e==null){
+         		for(Entry<T, U> e2: map[index])
+        			q.add((HashTableMapSC<K, V>.HashEntry<T, U>) e2);
+         		e= q.poll();
+           }
+           numElems--;
+           return e;
         }
 
         @Override
@@ -88,18 +115,21 @@ public class HashTableMapSC<K, V> implements Map<K, V> {
 
     private class HashTableMapKeyIterator<T, U> implements Iterator<T> {
 
+    	private HashTableMapIterator<T,U> it;
+    	
         public HashTableMapKeyIterator(HashTableMapIterator<T, U> it) {
-            throw new UnsupportedOperationException("Not yet implemented");
+        	this.it=it;
         }
 
         @Override
         public T next() {
-            throw new UnsupportedOperationException("Not yet implemented");
+            HashEntry<T, U> he = (HashEntry<T, U>) it.next();
+            return he.getKey();
         }
 
         @Override
         public boolean hasNext() {
-            throw new UnsupportedOperationException("Not yet implemented");
+           return it.hasNext();
         }
 
         @Override
@@ -110,19 +140,22 @@ public class HashTableMapSC<K, V> implements Map<K, V> {
     }
 
     private class HashTableMapValueIterator<T, U> implements Iterator<U> {
-
+    	
+    	private HashTableMapIterator<T,U> it;
+    	
         public HashTableMapValueIterator(HashTableMapIterator<T, U> it) {
-            throw new UnsupportedOperationException("Not yet implemented");
+        	this.it=it;
         }
 
         @Override
         public U next() {
-            throw new UnsupportedOperationException("Not yet implemented");
+            HashEntry<T, U> he = (HashEntry<T, U>) it.next();
+            return he.getValue();
         }
 
         @Override
         public boolean hasNext() {
-            throw new UnsupportedOperationException("Not yet implemented");
+           return it.hasNext();
         }
 
         @Override
@@ -234,7 +267,12 @@ public class HashTableMapSC<K, V> implements Map<K, V> {
      */
     @Override
     public V put(K key, V value) throws IllegalStateException {
-        throw new UnsupportedOperationException("Not yet implemented");
+        if(nOcupados>=capacity/2)
+        	rehash(capacity*2);
+        int code = hashValue(key);
+        ArrayList<HashTableMapSC<K, V>.HashEntry<K, V>> l = map[code];
+        map[code].add(new HashEntry<K, V>(key, value));
+        return value;
     }
 
     /**
@@ -244,8 +282,20 @@ public class HashTableMapSC<K, V> implements Map<K, V> {
      * @return
      */
     @Override
-    public V remove(K key) throws IllegalStateException {
-        throw new UnsupportedOperationException("Not yet implemented");
+    public V remove(K key) throws IllegalStateException {       
+    	checkKey(key);
+        int code = hashValue(key);
+        ArrayList<HashTableMapSC<K, V>.HashEntry<K, V>> l = map[code];
+        int i=0;
+        for(Entry<K, V> e : l){
+        	if(e.getKey().equals(key)){
+        		V value =  e.getValue();
+        		map[code].remove(i);
+        		return value;
+        	}
+        	i++;	
+        }
+        throw new IllegalStateException();
     }
 
     @Override

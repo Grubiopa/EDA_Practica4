@@ -2,7 +2,7 @@ package material.dictionary;
 
 /**
  *
- * @author jvelez
+ * @author Gabriel Rubio Palacios
  */
 public class CuadraticHashProbing  <K,V> implements ProbingMethod <K, V> {
 

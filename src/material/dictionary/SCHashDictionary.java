@@ -7,8 +7,9 @@ package material.dictionary;
 
 /**
  *
- * @author jvelez
+ * @author Gabriel Rubio Palacios
  */
+
 public class SCHashDictionary  <K,V> {
     
 }

@@ -13,7 +13,7 @@ import java.util.Random;
  * 0.5. When the load factor reaches 0.5, the entries are rehashed into a new
  * bucket array with twice the capacity.
  *
- * @author R. Cabido, A. Duarte, and J. Velez
+ * @author Gabriel Rubio Palacios
  * @param <K> Key type
  * @param <V> Value type
  */

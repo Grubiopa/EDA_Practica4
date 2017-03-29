@@ -13,7 +13,7 @@ import material.tree.binarytree.BinaryTree;
 
 /**
  *
- * @author jvelez
+ * @author Gabriel Rubio Palacios
  */
 public class InorderBinaryTreeIterator<T> implements Iterator<Position<T>> {
 

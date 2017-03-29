@@ -1,7 +1,7 @@
 package material.dictionary;
 
 /**
- * @author R. Cabido, A. Duarte, and J. Velez
+ * @author Gabriel Rubio Palacios
  * 
 *
  */

@@ -4,7 +4,7 @@ package material.dictionary;
  * Probing method used by HashDictionary
  * @param <K> Key
  * @param <V> Value
- * @author jvelez
+ * @author Gabriel Rubio Palacios
  */
 public interface ProbingMethod <K, V> {
     
